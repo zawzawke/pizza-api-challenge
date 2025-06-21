@@ -1,18 +1,34 @@
-from sqlalchemy.orm import validates
 from sqlalchemy import Column, Integer, String
-from server.config import db
-from .restaurant_pizza import RestaurantPizza
+from server.extensions import db
+from sqlalchemy.orm import relationship
 
 class Restaurant(db.Model):
     __tablename__ = 'restaurants'
 
-    id = Column(Integer, primary_key=True)
-    name = Column(String, nullable=False)
-    address = Column(String, nullable=False)
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String, nullable=False)
+    address = db.Column(db.String, nullable=False)
 
     restaurant_pizzas = db.relationship(
-        'RestaurantPizza', 
+        'RestaurantPizza',
         back_populates='restaurant',
         cascade='all, delete-orphan'
     )
 
+    def to_dict(self, include_pizzas=False):
+        data = {
+            "id": self.id,
+            "name": self.name,
+            "address": self.address
+        }
+
+        if include_pizzas:
+            data["pizzas"] = [
+                {
+                    "id": rp.pizza.id,
+                    "name": rp.pizza.name,
+                    "ingredients": rp.pizza.ingredients
+                } for rp in self.restaurant_pizzas
+            ]
+
+        return data

@@ -1,8 +1,8 @@
 from flask import Blueprint, jsonify, request
-from models.restaurant import Restaurant
-from models.restaurant_pizza import RestaurantPizza
-from models.pizza import Pizza
-from server.config import db
+from server.models.restaurant import Restaurant
+from server.models.restaurant_pizza import RestaurantPizza
+from server.models.pizza import Pizza
+from server.extensions import db
 
 restaurant_bp = Blueprint('restaurants', __name__, url_prefix='/restaurants')
 
@@ -19,7 +19,7 @@ def get_restaurant(id):
     
     return jsonify(restaurant.to_dict(include_pizzas=True)), 200
 
-@restaurant_bp.route('<int:id>', methods=['DELETE'])
+@restaurant_bp.route('/<int:id>', methods=['DELETE'])
 def delete_restaurant(id):
     restaurant = Restaurant.query.get(id)
     if not restaurant:
